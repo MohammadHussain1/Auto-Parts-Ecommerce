@@ -1,6 +1,3 @@
-<<<<<<< HEAD
-# Auto-Parts-Ecommerce
-=======
 # Auto-Parts E-commerce Backend
 
 This is a Node.js backend for an auto-parts e-commerce system with automated bulk product ingestion from emails, role-based access control, and comprehensive API endpoints.
@@ -138,20 +135,9 @@ Oil Filter,OF002,12.50
 
 ## Notes
 
-<<<<<<< HEAD
-- Only users with pre-registered emails can submit products via the email endpoint
-- The product code field has a unique index to prevent duplicates
-- All product names are also checked for duplicates
-- The email endpoint simulates receiving bulk products from emails
-- Passwords are automatically hashed before storage
-- Excel and CSV files are processed to extract product data (name, productCode, price)
-- The system handles JSON, Excel, and CSV file-based bulk uploads
->>>>>>> 94c1707 (Initial commit)
-=======
 - Products are automatically deduplicated by product code or name
 - Only registered emails can submit products via the email endpoint
 - Passwords are hashed before storage
 - JWT tokens are required for most endpoints
 - Excel formats supported: .xlsx, .xls
 - CSV format supported: .csv
->>>>>>> d63f723 (make perfect code)
