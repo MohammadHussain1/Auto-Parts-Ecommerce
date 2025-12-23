@@ -3,17 +3,17 @@
 =======
 # Auto-Parts E-commerce Backend
 
-A Node.js backend for an auto-parts e-commerce system with automated bulk product ingestion from emails, role-based access control, and comprehensive API endpoints.
+This is a Node.js backend for an auto-parts e-commerce system with automated bulk product ingestion from emails, role-based access control, and comprehensive API endpoints.
 
 ## Features
 
-- **Automated Bulk Product Ingestion**: Process bulk product data (1k+ rows) from simulated email attachments
-- **Role-Based Access Control**: Admin and Staff roles with different permissions
-- **JWT Authentication**: Secure token-based authentication
-- **Duplicate Filtering**: Automatic filtering of duplicate products by code or name
-- **Email Registration Validation**: Only registered emails can submit products
-- **Excel & CSV File Processing**: Support for both Excel and CSV file uploads containing product data
-- **Comprehensive API Endpoints**: Full CRUD operations with proper permissions
+- Automated bulk product ingestion from email attachments (simulated via API)
+- Role-based access control (Admin and Staff)
+- JWT authentication
+- Duplicate product filtering
+- Only registered emails can submit products
+- Excel and CSV file support for bulk uploads
+- Full CRUD operations for products
 
 ## Tech Stack
 
@@ -24,66 +24,46 @@ A Node.js backend for an auto-parts e-commerce system with automated bulk produc
 - Joi for validation
 - Bcrypt for password hashing
 - Multer for file uploads
-- XLSX for Excel processing
-- CSV-Parser for CSV processing
+- XLSX and CSV-Parser for file processing
 
 ## Prerequisites
 
 - Node.js (v14 or higher)
-- MongoDB (local or cloud instance)
+- MongoDB
 
 ## Installation
 
-1. Clone the repository:
-```bash
-git clone <repository-url>
-cd auto-parts-ecommerce
+1. Clone the repo
+2. Install dependencies: `npm install`
+3. Create a `.env` file with the following:
 ```
-
-2. Install dependencies:
-```bash
-npm install
-```
-
-3. Create a `.env` file in the root directory and add the following environment variables:
-```env
 PORT=3000
 MONGODB_URI=mongodb://localhost:27017/auto-parts-ecommerce
-JWT_SECRET=your_jwt_secret_key_here
+JWT_SECRET=your_secret_here
 NODE_ENV=development
 ```
-
-4. Start the development server:
-```bash
-npm run dev
-```
-
-The server will start on `http://localhost:3000`
+4. Run the server: `npm run dev`
 
 ## API Endpoints
 
 ### Authentication
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/api/register` | Register a new user |
-| POST | `/api/login` | Login user and get JWT token |
+- `POST /api/register` - Register user
+- `POST /api/login` - Login user
 
 ### Product Management
+- `POST /api/email/products` - Bulk product ingestion (JSON, Excel, or CSV)
+- `POST /api/products` - Create single product (Admin only)
+- `GET /api/products` - Get all products (Admin & Staff)
+- `GET /api/products/:id` - Get product by ID (Admin & Staff)
+- `PUT /api/products/:id` - Update product (Admin only)
+- `DELETE /api/products/:id` - Delete product (Admin & Staff)
 
-| Method | Endpoint | Description | Access |
-|--------|----------|-------------|---------|
-| POST | `/api/email/products` | Bulk product ingestion from email (simulated) - supports JSON, Excel, or CSV file | Public (registered emails only) |
-| POST | `/api/products` | Create a single product | Admin only |
-| GET | `/api/products` | Get all products | Admin & Staff |
-| GET | `/api/products/:id` | Get product by ID | Admin & Staff |
-| PUT | `/api/products/:id` | Update product by ID | Admin only |
-| DELETE | `/api/products/:id` | Delete product by ID | Admin & Staff |
+## Usage
 
-### Request Examples
-
-#### Register User
-```json
+### Register and Login
+First, register a user:
+```
+POST /api/register
 {
   "email": "admin@example.com",
   "password": "password123",
@@ -91,16 +71,20 @@ The server will start on `http://localhost:3000`
 }
 ```
 
-#### Login User
-```json
+Then login to get a JWT token:
+```
+POST /api/login
 {
   "email": "admin@example.com",
   "password": "password123"
 }
 ```
 
-#### Bulk Product Ingestion (from email) - JSON
-```json
+### Bulk Product Ingestion
+You can upload products via:
+1. JSON data:
+```
+POST /api/email/products
 {
   "sourceEmail": "supplier@example.com",
   "products": [
@@ -108,49 +92,23 @@ The server will start on `http://localhost:3000`
       "name": "Brake Pad",
       "productCode": "BP001",
       "price": 25.99
-    },
-    {
-      "name": "Oil Filter",
-      "productCode": "OF002",
-      "price": 12.50
     }
   ]
 }
 ```
 
-#### Bulk Product Ingestion (from email) - Excel File Upload
-To upload an Excel file with products:
-- Use multipart/form-data
-- Include the Excel file in the `file` field
-- Include the source email in the `sourceEmail` field
+2. Excel file upload (multipart/form-data):
+- Send file in 'file' field
+- Send sourceEmail in 'sourceEmail' field
 
-Example Excel file format (columns can be named differently):
-| Product Name | Product Code | Price |
-|--------------|--------------|-------|
-| Brake Pad    | BP001        | 25.99 |
-| Oil Filter   | OF002        | 12.50 |
-| Air Filter   | AF003        | 18.75 |
+3. CSV file upload (multipart/form-data):
+- Send file in 'file' field
+- Send sourceEmail in 'sourceEmail' field
 
-Supported Excel formats: .xlsx, .xls
-
-#### Bulk Product Ingestion (from email) - CSV File Upload
-To upload a CSV file with products:
-- Use multipart/form-data
-- Include the CSV file in the `file` field
-- Include the source email in the `sourceEmail` field
-
-Example CSV file format (columns can be named differently):
+### Single Product Creation (Admin only)
 ```
-Product Name,Product Code,Price
-Brake Pad,BP001,25.99
-Oil Filter,OF002,12.50
-Air Filter,AF003,18.75
-```
-
-Supported CSV formats: .csv
-
-#### Create Single Product
-```json
+POST /api/products
+Authorization: Bearer <token>
 {
   "name": "Engine Oil",
   "productCode": "EO004",
@@ -158,93 +116,29 @@ Supported CSV formats: .csv
 }
 ```
 
-## Role Permissions
+## Roles & Permissions
 
-| Role | Permissions |
-|------|-------------|
-| Admin | Create, read, update, delete products |
-| Staff | Read, delete products |
-| Unregistered Email | Cannot submit products |
+- Admin: Can create, read, update, delete products
+- Staff: Can read and delete products
+- Only registered emails can submit products via email endpoint
 
-## Database Models
+## File Upload Format
 
-### User Model
-- `email`: Unique email address
-- `password`: Hashed password
-- `role`: 'Admin' or 'Staff'
-- `isActive`: Boolean flag for account status
+For Excel and CSV files, use these column names:
+- Product Name (or Name, Product Name, product name)
+- Product Code (or Product Code, product code, code)
+- Price (or Price, Unit Price, unit price)
 
-### Product Model
-- `name`: Product name
-- `productCode`: Unique product code (uppercase)
-- `price`: Product price (positive number)
-- `sourceEmail`: Email that submitted the product
-
-## Error Handling
-
-The application includes comprehensive error handling for:
-- Authentication errors
-- Authorization errors
-- Validation errors
-- Database errors
-- Duplicate product entries
-- File upload errors
-
-## Postman Collection
-
-A Postman collection is included in the project root: `Auto-Parts-Postman-Collection.json`
-Import this collection into Postman to test all API endpoints.
-
-## Security Features
-
-- JWT-based authentication
-- Role-based access control
-- Input validation using Joi
-- Password hashing with bcrypt
-- Duplicate product filtering
-- Email registration validation
-- File type validation for Excel and CSV uploads
-
-## Project Structure
-
+Example CSV:
 ```
-auto-parts-ecommerce/
-├── controllers/          # Request handlers
-├── middleware/          # Authentication, authorization, validation
-├── models/              # Mongoose models
-├── routes/              # API route definitions
-├── services/            # Business logic
-├── utils/               # Utility functions (Excel/CSV processing)
-├── .env                 # Environment variables
-├── .gitignore
-├── package.json
-├── README.md
-├── server.js            # Main application file
-└── Auto-Parts-Postman-Collection.json
+Product Name,Product Code,Price
+Brake Pad,BP001,25.99
+Oil Filter,OF002,12.50
 ```
-
-## Development
-
-To run in development mode with auto-restart:
-```bash
-npm run dev
-```
-
-To run in production mode:
-```bash
-npm start
-```
-
-## Testing
-
-To test the API endpoints, you can:
-1. Import the Postman collection
-2. Use the endpoints as documented above
-3. Register users with different roles to test permissions
-4. Test both JSON, Excel, and CSV file uploads for bulk ingestion
 
 ## Notes
 
+<<<<<<< HEAD
 - Only users with pre-registered emails can submit products via the email endpoint
 - The product code field has a unique index to prevent duplicates
 - All product names are also checked for duplicates
@@ -253,3 +147,11 @@ To test the API endpoints, you can:
 - Excel and CSV files are processed to extract product data (name, productCode, price)
 - The system handles JSON, Excel, and CSV file-based bulk uploads
 >>>>>>> 94c1707 (Initial commit)
+=======
+- Products are automatically deduplicated by product code or name
+- Only registered emails can submit products via the email endpoint
+- Passwords are hashed before storage
+- JWT tokens are required for most endpoints
+- Excel formats supported: .xlsx, .xls
+- CSV format supported: .csv
+>>>>>>> d63f723 (make perfect code)

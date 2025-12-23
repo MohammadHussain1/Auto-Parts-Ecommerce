@@ -25,7 +25,6 @@ const createProduct = async (req, res) => {
       });
     }
 
-    // Use the authenticated user's email as sourceEmail
     const product = await createSingleProduct(value, req.user.email);
 
     res.status(201).json({
@@ -33,10 +32,18 @@ const createProduct = async (req, res) => {
       message: 'Product created successfully',
       data: product
     });
-  } catch (error) {
+  } catch (err) {
+    // Handle specific errors
+    if (err.message.includes('already exists')) {
+      return res.status(400).json({
+        success: false,
+        message: err.message
+      });
+    }
+    
     res.status(500).json({
       success: false,
-      message: error.message || 'Internal server error'
+      message: 'Something went wrong while creating product'
     });
   }
 };
@@ -51,10 +58,10 @@ const getProducts = async (req, res) => {
       success: true,
       data: result
     });
-  } catch (error) {
+  } catch (err) {
     res.status(500).json({
       success: false,
-      message: error.message || 'Internal server error'
+      message: 'Error fetching products'
     });
   }
 };
@@ -75,10 +82,10 @@ const getProduct = async (req, res) => {
       success: true,
       data: product
     });
-  } catch (error) {
+  } catch (err) {
     res.status(500).json({
       success: false,
-      message: error.message || 'Internal server error'
+      message: 'Error fetching product'
     });
   }
 };
@@ -108,10 +115,17 @@ const updateProduct = async (req, res) => {
       message: 'Product updated successfully',
       data: product
     });
-  } catch (error) {
+  } catch (err) {
+    if (err.message.includes('already exists')) {
+      return res.status(400).json({
+        success: false,
+        message: err.message
+      });
+    }
+    
     res.status(500).json({
       success: false,
-      message: error.message || 'Internal server error'
+      message: 'Error updating product'
     });
   }
 };
@@ -132,10 +146,10 @@ const deleteProduct = async (req, res) => {
       success: true,
       message: 'Product deleted successfully'
     });
-  } catch (error) {
+  } catch (err) {
     res.status(500).json({
       success: false,
-      message: error.message || 'Internal server error'
+      message: 'Error deleting product'
     });
   }
 };

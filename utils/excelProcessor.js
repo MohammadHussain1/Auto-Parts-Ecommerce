@@ -14,10 +14,10 @@ const processExcelFile = (buffer) => {
     // Convert to JSON
     const jsonData = XLSX.utils.sheet_to_json(worksheet);
     
-    // Validate and transform the data to match our product structure
+    // Transform the data to match our product structure
     const products = jsonData
       .map((row, index) => {
-        // Handle different possible column names for better flexibility
+        // Handle different possible column names
         const name = row.name || row.Name || row.productName || row['Product Name'] || row['Product name'] || row['product name'];
         const productCode = row.productCode || row['Product Code'] || row['Product code'] || row['product code'] || row.code || row.Code;
         const price = row.price || row.Price || row['Unit Price'] || row['unit price'] || row['Unit price'];
@@ -57,8 +57,8 @@ const processExcelFile = (buffer) => {
     }
     
     return products;
-  } catch (error) {
-    throw new Error(`Error processing Excel file: ${error.message}`);
+  } catch (err) {
+    throw new Error(`Error processing Excel file: ${err.message}`);
   }
 };
 
@@ -70,7 +70,7 @@ const processCsvFile = (buffer) => {
     readableStream
       .pipe(csv())
       .on('data', (row) => {
-        // Handle different possible column names for better flexibility
+        // Handle different possible column names
         const name = row.name || row.Name || row.productName || row['Product Name'] || row['Product name'] || row['product name'];
         const productCode = row.productCode || row['Product Code'] || row['Product code'] || row['product code'] || row.code || row.Code;
         const price = row.price || row.Price || row['Unit Price'] || row['unit price'] || row['Unit price'];
@@ -109,8 +109,8 @@ const processCsvFile = (buffer) => {
         
         resolve(results);
       })
-      .on('error', (error) => {
-        reject(new Error(`Error processing CSV file: ${error.message}`));
+      .on('error', (err) => {
+        reject(new Error(`Error processing CSV file: ${err.message}`));
       });
   });
 };

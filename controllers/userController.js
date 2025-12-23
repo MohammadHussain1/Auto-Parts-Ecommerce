@@ -59,10 +59,10 @@ const register = async (req, res) => {
         role: user.role
       }
     });
-  } catch (error) {
+  } catch (err) {
     res.status(500).json({
       success: false,
-      message: error.message || 'Internal server error'
+      message: 'Registration failed'
     });
   }
 };
@@ -113,10 +113,10 @@ const login = async (req, res) => {
         }
       }
     });
-  } catch (error) {
+  } catch (err) {
     res.status(500).json({
       success: false,
-      message: error.message || 'Internal server error'
+      message: 'Login failed'
     });
   }
 };

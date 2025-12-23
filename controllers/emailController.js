@@ -25,7 +25,6 @@ const emailProducts = async (req, res) => {
         });
       }
 
-      // Check if originalname exists
       if (!req.file.originalname) {
         return res.status(400).json({
           success: false,
@@ -33,7 +32,6 @@ const emailProducts = async (req, res) => {
         });
       }
 
-      // Determine file type and process accordingly
       let fileExtension = 'unknown';
       try {
         fileExtension = req.file.originalname.split('.').pop().toLowerCase();
@@ -45,10 +43,8 @@ const emailProducts = async (req, res) => {
       }
       
       if (fileExtension === 'csv') {
-        // Process CSV file
         products = await processCsvFile(req.file.buffer);
       } else {
-        // Process Excel file
         products = processExcelFile(req.file.buffer);
       }
     } else {
@@ -75,7 +71,7 @@ const emailProducts = async (req, res) => {
       });
     }
 
-    // Validate each product in the array
+    // Validate each product
     for (const product of products) {
       const { error } = productSchema.validate(product);
       if (error) {
@@ -98,11 +94,11 @@ const emailProducts = async (req, res) => {
         duplicatesFiltered: products.length - insertedProducts.length
       }
     });
-  } catch (error) {
-    console.error('Error processing email products:', error);
+  } catch (err) {
+    console.error('Error processing email products:', err);
     res.status(500).json({
       success: false,
-      message: error.message || 'Internal server error'
+      message: 'Error processing products'
     });
   }
 };

@@ -39,26 +39,24 @@ const createProducts = async (products, sourceEmail) => {
     try {
       const insertedProducts = await Product.insertMany(productsToInsert);
       return insertedProducts;
-    } catch (error) {
-      // Handle duplicate key errors gracefully
-      if (error.code === 11000) {
-        // If there are duplicates, try to insert one by one to skip duplicates
+    } catch (err) {
+      // Handle duplicate key errors
+      if (err.code === 11000) {
         const successfulInsertions = [];
         for (const product of productsToInsert) {
           try {
             const insertedProduct = await Product.create(product);
             successfulInsertions.push(insertedProduct);
-          } catch (individualError) {
-            if (individualError.code !== 11000) {
-              // If it's not a duplicate error, log it but continue
-              console.error('Error inserting individual product:', individualError);
+          } catch (indivError) {
+            if (indivError.code !== 11000) {
+              console.error('Error inserting product:', indivError);
             }
-            // If it's a duplicate error, just skip this product
+            // Skip duplicate products
           }
         }
         return successfulInsertions;
       }
-      throw error; // Re-throw if it's not a duplicate key error we can handle
+      throw err;
     }
   }
 
